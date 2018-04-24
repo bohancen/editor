@@ -1,8 +1,9 @@
 import React, { Component } from 'react'
-import * as Quill from 'react-quill'; // Typescript
 import ReactQuill from 'react-quill';
+import pretty from 'pretty';
 import 'react-quill/dist/quill.snow.css';
-console.log(Quill)
+
+console.log(pretty)
 
 class MyComponent extends Component {
    constructor(props) {
@@ -16,11 +17,8 @@ class MyComponent extends Component {
    }
    
    tidyHtml(source) {
-      return source
-      // return html_beautify(source, {
-      //    unformatted: [],
-      //    preserve_newlines: false,
-      // });
+      // return source
+      return pretty(source);
    }
 
    render() {
