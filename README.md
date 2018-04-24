@@ -1,10 +1,10 @@
 ## address
-[quill HOME](https://quilljs.com/)
-[quill Quickstart](https://quilljs.com/docs/quickstart/)
-[quill API](https://quilljs.com/docs/api/)
-[quill Github](https://github.com/quilljs/quill/)
-[react-quill](https://github.com/zenoamaro/react-quill)
-[react-quill-online-example](http://zenoamaro.github.io/react-quill/)
+* [quill HOME](https://quilljs.com/).
+* [quill Quickstart](https://quilljs.com/docs/quickstart/).
+* [quill API](https://quilljs.com/docs/api/).
+* [quill Github](https://github.com/quilljs/quill/).
+* [react-quill](https://github.com/zenoamaro/react-quill).
+* [react-quill-online-example](http://zenoamaro.github.io/react-quill/).
 
 - [Updating to New Releases](#updating-to-new-releases)
 - [Sending Feedback](#sending-feedback)
