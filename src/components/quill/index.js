@@ -33,8 +33,26 @@ class MyComponent extends Component {
    }
    insertText = () => {
       var range = this.quillRef.getSelection();
-      let position = range ? range.index : 0;
-      this.quillRef.insertText(position, 'Hello, World! ')
+      console.log(range)
+      this.quillRef.setContents([
+            { insert: 'Hello ' },
+            { insert: 'World!', attributes: { bold: true } },
+            { insert: '\n' }
+      ]);
+    // 内联媒体
+    // this.quillRef.insertEmbed(range.index, 'image', 'http://p1.qhimgs4.com/dmfd/158_88_/t0171ea6adfcc333ffc.jpg?size=297x300');
+    // let position = range ? range.index : 0;
+    // this.quillRef.insertText(position, 'Hello, World! ')
+    // this.quillRef.formatText(range.index, range.length, 'bold', true);
+    // let {bold} = this.quillRef.getFormat();
+    // this.quillRef.formatText(...Object.values(range),{
+    //   'bold': !bold
+    // });
+    // 判断当前有哪些样式
+    // var sty = this.quillRef.getFormat();
+    // console.log(sty);
+    // 插入链接
+    // this.quillRef.insertText(position, 'Hello', 'link', 'https://world.com');
    }
    handleChange(value) {
       this.setState({ text: value })
