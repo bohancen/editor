@@ -7,7 +7,16 @@
 * [react-quill](https://github.com/zenoamaro/react-quill).
 * [react-quill-online-example](http://zenoamaro.github.io/react-quill/).
 
-- [Updating to New Releases](#updating-to-new-releases)
+- 数据转换
+- 初始化
+- 自定义隐藏模块
+- 本地输入状态与ios等交换
+- 同步草稿
+- 上传图片 进度 图片描述 内联图片 block图片
+- 添加链接
+- @使用
+
+
 - [Sending Feedback](#sending-feedback)
 - [Folder Structure](#folder-structure)
 - [Available Scripts](#available-scripts)
