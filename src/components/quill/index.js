@@ -1,41 +1,20 @@
 import React, { Component } from 'react'
 import ReactQuill, { Quill } from 'react-quill';
 import pretty from 'pretty';
-// import hiddenBlock from './hiddenBlock'
 import 'react-quill/dist/quill.snow.css';
+
 import './style.css';
+// import Bold from './formats/bold'
+import Hidden from './formats/hidden'
+import Hr from './formats/hr'
+import Quote from './formats/quote'
+import Video from './formats/video'
 
-let Inline = Quill.import('blots/inline');
-let BlockEmbed = Quill.import('blots/block/embed');
-let Block = Quill.import('blots/block');
-
-class BoldBlot extends Inline { }
-BoldBlot.blotName = 'bold';
-BoldBlot.tagName = 'b';
-
-class ItalicBlot extends Inline { }
-ItalicBlot.blotName = 'italic';
-ItalicBlot.tagName = 'em';
-
-class DividerBlot extends BlockEmbed { }
-DividerBlot.blotName = 'divider';
-DividerBlot.tagName = 'hr';
-
-class BlockquoteBlot extends Block { }
-BlockquoteBlot.blotName = 'blockquote';
-BlockquoteBlot.tagName = 'blockquote';
-
-// class BlockquoteBlot2 extends Block { }
-// BlockquoteBlot2.blotName = 'blockquote2';
-// BlockquoteBlot2.tagName = 'pre';
-// BlockquoteBlot2.className = 'hidden-content';
-
-Quill.register(BoldBlot);
-Quill.register(ItalicBlot);
-Quill.register(DividerBlot);
-Quill.register(BlockquoteBlot);
-// Quill.register(BlockquoteBlot2);
-// Quill.register(hiddenBlock);
+// Quill.register(Bold);
+Quill.register(Hidden);
+Quill.register(Hr);
+Quill.register(Quote);
+Quill.register(Video);
 
 var toolbarOptions = [
   ['italic', 'strike'],        // toggled buttons
@@ -54,17 +33,29 @@ class MyComponent extends Component {
     this.quillRef = null;
     this.reactQuillRef = null; // ReactQuill component
     window.insertText = this.insertText
+    window.insertVideo = this.insertVideo
 
   }
   componentDidMount() {
     this.attachQuillRefs()
   }
   componentDidUpdate() {
+    // console.log('componentDidUpdate')
     this.attachQuillRefs()
   }
   attachQuillRefs = () => {
     if (typeof this.reactQuillRef.getEditor !== 'function') return;
     this.quillRef = this.reactQuillRef.getEditor();
+  }
+
+  // 
+  insertVideo = () => {
+    let range = this.quillRef.getSelection(true);
+    let url = 'https://www.youtube.com/embed/QHH3iSeDBLo?showinfo=0';
+    this.quillRef.insertText(range.index, '\n', Quill.sources.USER);
+    this.quillRef.insertEmbed(range.index + 1, 'insertVideo', url, Quill.sources.USER);
+    this.quillRef.formatText(range.index + 1, 1, { height: '170', width: '400' });
+    this.quillRef.setSelection(range.index + 2, Quill.sources.SILENT);
   }
 
   insertText = (boolean=true) => {
@@ -102,6 +93,8 @@ class MyComponent extends Component {
     // this.quillRef.insertText(position, 'Hello', 'link', 'https://world.com');
   }
   handleChange(value) {
+    console.log(value)
+    // value 是html
     this.setState({ text: value })
   }
 
@@ -127,6 +120,7 @@ class MyComponent extends Component {
         >
         </ReactQuill>
         <button onClick={() => this.insertText()}>insertText</button>
+        <button onClick={() => this.insertVideo()}>insertVideo</button>
         <pre>
           {this.tidyHtml(this.state.text)}
         </pre>
