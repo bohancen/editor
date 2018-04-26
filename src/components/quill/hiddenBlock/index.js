@@ -3,7 +3,7 @@ let Block = Quill.import('formats/code-block');
 
 
 class Blockquote extends Block { }
-Blockquote.blotName = 'hidden-block2';
+Blockquote.blotName = 'hidden-block';
 // Blockquote.tagName = 'CODE';
 // Blockquote.className = 'hidden-block';
 
