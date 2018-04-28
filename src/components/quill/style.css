@@ -1,1 +1,5 @@
 .hidden-block{background-color: #aaa;margin-bottom: 1em;}
+
+.inline-style-bold{font-weight: bold}
+.inline-style-italic{font-style: italic}
+.inline-style-strike{text-decoration: line-through}
