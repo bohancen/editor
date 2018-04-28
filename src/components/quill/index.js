@@ -4,7 +4,7 @@ import pretty from 'pretty';
 import 'react-quill/dist/quill.snow.css';
 
 import './style.css';
-import { BoldBlot, ItalicBlot, StrikeBlot} from './formats/bold'
+import { BoldBlot, ItalicBlot, StrikeBlot } from './formats/bold'
 // import Hidden from './formats/hidden'
 import Hr from './formats/hr'
 import Quote from './formats/quote'
@@ -54,7 +54,7 @@ class MyComponent extends Component {
     this.quillRef = this.reactQuillRef.getEditor();
   }
 
-  insertHidden = () =>{
+  insertHidden = () => {
     // let range = this.quillRef.getSelection(true);
     this.quillRef.format('list', 'unchecked');
   }
@@ -72,15 +72,31 @@ class MyComponent extends Component {
     // 得到当前焦点
     let range = this.quillRef.getSelection(true);
     // user
-    console.log(Quill.sources.USER)
-    this.quillRef.insertText(range.index, '\n', Quill.sources.USER);
+    console.log(range)
+    // this.quillRef.insertText(range.index, '\n', Quill.sources.USER);
     this.quillRef.insertEmbed(range.index, 'image-diy', {
       alt: 'Quill Cloud',
       url: 'http://p2.qhimgs4.com/dmfd/95_60_/t0190d1166dd7e68103.jpg'
     });
     this.quillRef.setSelection(range.index + 2, Quill.sources.SILENT);
   }
-  insertLink = () =>{
+  setConent = () => {
+    this.quillRef.setContents([
+      { insert: 'Hello ' },
+      {
+        // An image link
+        insert: {
+          image: 'http://p1.qhimgs4.com/dmfd/182_136_/t0111ae1c0806b67ed3.jpg'
+        },
+        attributes: {
+          link: 'https://quilljs.com'
+        }
+      },
+      { insert: 'World!', attributes: { bold: true } },
+      { insert: '\n' }
+    ]);
+  }
+  insertLink = () => {
     // 得到当前焦点
     let range = this.quillRef.getSelection(true);
     console.log(range)
@@ -97,7 +113,7 @@ class MyComponent extends Component {
     // this.quillRef.formatLine(range.index, value.length, 'link-diy', url);
   }
 
-  insertText = (boolean=true) => {
+  insertText = (boolean = true) => {
     // 得到当前焦点
     let range = this.quillRef.getSelection(true);
     // 获取当前有那些样式
@@ -109,7 +125,7 @@ class MyComponent extends Component {
     // const cursorPosition = this.quill.getSelection().index
     // this.quill.insertText(cursorPosition, "★")
     // this.quill.setSelection(cursorPosition + 1)
-    
+
     // this.quillRef.insertText(0, 'Test', { bold: true });
     // this.quillRef.formatText(0, 4, 'bold', true); let range = quill.getSelection(true);
     // this.quillRef.undo() ???
@@ -163,13 +179,13 @@ class MyComponent extends Component {
           modules={
             { 'toolbar': toolbarOptions }
           }
-          formats={this.formats} // the custom format is already registered
+          // formats={this.formats} // the custom format is already registered
           ref={(el) => { this.reactQuillRef = el }}
           value={this.state.text}
           onChange={this.handleChange}
-          // clipboard={
-          //   { matchVisual: false }
-          // }
+        // clipboard={
+        //   { matchVisual: false }
+        // }
         >
         </ReactQuill>
         <button onMouseDown={() => this.insertText()}>insertText</button>
@@ -177,6 +193,7 @@ class MyComponent extends Component {
         <button onClick={() => this.insertHidden()}>insertHidden</button>
         <button onMouseDown={(e) => { e.preventDefault(), this.insertLink() }}>insertLink</button>
         <button onMouseDown={(e) => { e.preventDefault(), this.insertImg() }}>insertImg</button>
+        <button onMouseDown={(e) => { e.preventDefault(), this.setConent() }}>setConent</button>
         <pre>
           {this.tidyHtml(this.state.text)}
         </pre>

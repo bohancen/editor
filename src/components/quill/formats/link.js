@@ -1,5 +1,5 @@
 import { Quill } from 'react-quill';
-let Block = Quill.import('blots/block');
+
 let Inline = Quill.import('blots/inline');
 
 class LinkBlot extends Inline {

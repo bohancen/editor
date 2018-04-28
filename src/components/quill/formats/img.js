@@ -1,10 +1,7 @@
 import { Quill } from 'react-quill';
+let BlockEmbed = Quill.import('blots/embed');
 
-let BlockEmbed = Quill.import('blots/block/embed');
-
-
-
-class ImageBlot extends BlockEmbed {
+class ImageBlot2 extends BlockEmbed {
   static create(value) {
     let node = super.create();
     node.setAttribute('alt', value.alt);
@@ -19,9 +16,9 @@ class ImageBlot extends BlockEmbed {
     };
   }
 }
-ImageBlot.blotName = 'image-diy';
-ImageBlot.tagName = 'img';
+ImageBlot2.blotName = 'image-diy';
+ImageBlot2.tagName = ['img'];
 
-// Quill.register(ImageBlot);
+// Quill.register(ImageBlot2);
 
-export default ImageBlot 
+export default ImageBlot2 
