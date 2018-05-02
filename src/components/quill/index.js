@@ -3,9 +3,11 @@ import ReactQuill, { Quill } from 'react-quill';
 import pretty from 'pretty';
 import 'react-quill/dist/quill.snow.css';
 
+import extend from 'extend';
+import Delta from 'quill-delta';
 import './style.css';
 import { BoldBlot, ItalicBlot, StrikeBlot } from './formats/bold'
-// import Hidden from './formats/hidden'
+import Hidden, { HiddenItem} from './formats/hidden'
 import Hr from './formats/hr'
 import Quote from './formats/quote'
 import Video from './formats/video'
@@ -15,7 +17,8 @@ import Img from './formats/img'
 Quill.register(BoldBlot);
 Quill.register(ItalicBlot);
 Quill.register(StrikeBlot);
-// Quill.register(Hidden);
+Quill.register(Hidden);
+Quill.register(HiddenItem);
 Quill.register(Hr);
 Quill.register(Quote);
 Quill.register(Video);
@@ -29,6 +32,68 @@ var toolbarOptions = [
   ['link', 'image', 'video'],
   ['clean']                                         // remove formatting button
 ];
+var bindings = {
+  list: {
+    key: 'backspace',
+    format: ['hidden-diy'],
+    handler: function (range, context) {
+      console.log(context)
+      if (context.offset === 0 && context.format) {
+        this.quill.format('hidden-diy', false, Quill.sources.USER);
+      }else{
+        return true
+      }
+    }
+  },
+  'hidden empty enter': {
+    key: 'enter',
+    collapsed: true,
+    format: ['hidden-diy'],
+    empty: true,
+    handler: function (range, context) {
+      this.quill.format('hidden-diy', false, Quill.sources.USER);
+    }
+  },
+  'hidden enter': {
+    key: 'enter',
+    collapsed: true,
+    format: ['hidden-diy'],
+    handler: function (range) {
+      let [line, offset] = this.quill.getLine(range.index);
+      let formats = extend({}, line.formats(), { 'hidden-diy':true });
+      console.log(formats)
+      let delta = new Delta().retain(range.index)
+        .insert('\n', formats)
+        .retain(line.length() - offset - 1)
+        .retain(1, { 'hidden-diy': true});
+      console.log(delta)
+      this.quill.updateContents(delta, Quill.sources.USER);
+      this.quill.setSelection(range.index + 1, Quill.sources.SILENT);
+      this.quill.scrollIntoView();
+      console.log(this.quill)
+    }
+  },
+};
+
+// quill.keyboard.addBinding({ key: Keyboard.keys.ENTER }, {
+//   empty: true,    // implies collapsed: true and offset: 0
+//   format: ['list']
+// }, function (range, context) {
+//   this.quill.format('list', false);
+// });
+
+    // this.quillRef.keyboard.addBinding({ key: Keyboard.keys.BACKSPACE }, {
+    //   collapsed: true,
+    //   format: ['hidden-diy'],
+    //   offset: 0
+    // }, function (range, context) {
+    //   console.log(context.format)
+    //   // if (context.format.list) {
+    //   //   this.quillRef.format('list', false);
+    //   // } else {
+    //   //   this.quillRef.format('blockquote', false);
+    //   // }
+    // });
 
 class MyComponent extends Component {
   constructor(props) {
@@ -44,6 +109,18 @@ class MyComponent extends Component {
   }
   componentDidMount() {
     this.attachQuillRefs()
+    // this.quillRef.keyboard.addBinding({ key: Keyboard.keys.BACKSPACE }, {
+    //   collapsed: true,
+    //   format: ['hidden-diy'],
+    //   offset: 0
+    // }, function (range, context) {
+    //   console.log(context.format)
+    //   // if (context.format.list) {
+    //   //   this.quillRef.format('list', false);
+    //   // } else {
+    //   //   this.quillRef.format('blockquote', false);
+    //   // }
+    // });
   }
   componentDidUpdate() {
     // console.log('componentDidUpdate')
@@ -55,8 +132,32 @@ class MyComponent extends Component {
   }
 
   insertHidden = () => {
-    // let range = this.quillRef.getSelection(true);
-    this.quillRef.format('list', 'unchecked');
+    // 得到当前焦点
+    let range = this.quillRef.getSelection(true);
+    // 获取当前有那些样式
+    let format = this.quillRef.getFormat(...range);
+    // console.log(format)
+    this.quillRef.format('hidden-diy', true);
+    // 几种 bullet ordered unchecked checked false
+    // if (format.list) {
+    //   this.quillRef.format('list', false);
+    // } else {
+    //   this.quillRef.format('list', 'bullet');
+    // }
+  }
+
+  insertList = () =>{
+    // 得到当前焦点
+    let range = this.quillRef.getSelection(true);
+    // 获取当前有那些样式
+    let format = this.quillRef.getFormat(...range);
+    console.log(format)
+    // 几种 bullet ordered unchecked checked false
+    if (format.list) {
+      this.quillRef.format('list', false);
+    } else {
+      this.quillRef.format('list', 'bullet');
+    }
   }
 
   insertVideo = () => {
@@ -78,7 +179,7 @@ class MyComponent extends Component {
       alt: 'Quill Cloud',
       url: 'http://p2.qhimgs4.com/dmfd/95_60_/t0190d1166dd7e68103.jpg'
     });
-    this.quillRef.setSelection(range.index + 2, Quill.sources.SILENT);
+    this.quillRef.setSelection(range.index + 1, Quill.sources.USER);
   }
   setConent = () => {
     this.quillRef.setContents([
@@ -165,6 +266,7 @@ class MyComponent extends Component {
     // editor 文本框对象，可以调用函数获取content, delta值
     // console.log(arguments)
     this.setState({ text: content })
+    console.log(this)
   }
 
   tidyHtml(source) {
@@ -177,7 +279,12 @@ class MyComponent extends Component {
       <div>
         <ReactQuill
           modules={
-            { 'toolbar': toolbarOptions }
+            { 
+              'toolbar': toolbarOptions,
+              'keyboard': {
+                bindings: bindings
+              }
+            }
           }
           // formats={this.formats} // the custom format is already registered
           ref={(el) => { this.reactQuillRef = el }}
@@ -194,6 +301,7 @@ class MyComponent extends Component {
         <button onMouseDown={(e) => { e.preventDefault(), this.insertLink() }}>insertLink</button>
         <button onMouseDown={(e) => { e.preventDefault(), this.insertImg() }}>insertImg</button>
         <button onMouseDown={(e) => { e.preventDefault(), this.setConent() }}>setConent</button>
+        <button onMouseDown={(e) => { e.preventDefault(), this.insertList() }}>insertList</button>
         <pre>
           {this.tidyHtml(this.state.text)}
         </pre>
