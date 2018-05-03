@@ -13,6 +13,7 @@ import Quote from './formats/quote'
 import Video from './formats/video'
 import Link from './formats/link'
 import Img from './formats/img'
+// import ScrollBlock from './formats/scroll'
 
 Quill.register(BoldBlot);
 Quill.register(ItalicBlot);
@@ -24,6 +25,8 @@ Quill.register(Quote);
 Quill.register(Video);
 Quill.register(Link);
 Quill.register(Img);
+
+// Quill.register(ScrollBlock);
 
 var toolbarOptions = [
   ['italic', 'strike'],        // toggled buttons
@@ -146,6 +149,15 @@ class MyComponent extends Component {
     // }
   }
 
+  insertHr = () =>{
+    console.log('insertHr');
+    let range = this.quillRef.getSelection(true);
+    // user
+    // this.quillRef.insertText(range.index, '\n', Quill.sources.USER);
+    this.quillRef.insertEmbed(range.index, 'Hrblock', Quill.sources.USER);
+    this.quillRef.setSelection(range.index + 2, Quill.sources.USER);
+  }
+
   insertList = () =>{
     // 得到当前焦点
     let range = this.quillRef.getSelection(true);
@@ -158,6 +170,11 @@ class MyComponent extends Component {
     } else {
       this.quillRef.format('list', 'bullet');
     }
+  }
+
+  insertScroll=()=>{
+    this.quillRef.format('scroll', true);
+    
   }
 
   insertVideo = () => {
@@ -182,20 +199,25 @@ class MyComponent extends Component {
     this.quillRef.setSelection(range.index + 1, Quill.sources.USER);
   }
   setConent = () => {
-    this.quillRef.setContents([
-      { insert: 'Hello ' },
-      {
-        // An image link
-        insert: {
-          image: 'http://p1.qhimgs4.com/dmfd/182_136_/t0111ae1c0806b67ed3.jpg'
-        },
-        attributes: {
-          link: 'https://quilljs.com'
-        }
-      },
-      { insert: 'World!', attributes: { bold: true } },
-      { insert: '\n' }
-    ]);
+    let json = '{"ops":[{"insert":"1\na"},{"attributes":{"hidden-diy":true},"insert":"\n"},{"insert":"2"},{"attributes":{"hidden-diy":true},"insert":"\n"},{"insert":"111\n"}]}'
+    console.log(json)
+    let testData = JSON.parse(json.replace(/\n+/g,'\\n'));
+    console.log(testData)
+    this.quillRef.setContents(testData.ops)
+    // this.quillRef.setContents([
+    //   { insert: 'Hello ' },
+    //   {
+    //     // An image link
+    //     insert: {
+    //       image: 'http://p1.qhimgs4.com/dmfd/182_136_/t0111ae1c0806b67ed3.jpg'
+    //     },
+    //     attributes: {
+    //       link: 'https://quilljs.com'
+    //     }
+    //   },
+    //   { insert: 'World!', attributes: { bold: true } },
+    //   { insert: '\n' }
+    // ]);
   }
   insertLink = () => {
     // 得到当前焦点
@@ -265,8 +287,12 @@ class MyComponent extends Component {
     // source 值为user或api
     // editor 文本框对象，可以调用函数获取content, delta值
     // console.log(arguments)
+    // console.log(delta)
+    console.log(editor.getContents())
+    console.log(JSON.stringify(editor.getContents()))
+    
     this.setState({ text: content })
-    console.log(this)
+    // console.log(this)
   }
 
   tidyHtml(source) {
@@ -274,6 +300,18 @@ class MyComponent extends Component {
     return pretty(source);
   }
 
+  onChangeSelection(range, source, editor){
+    // 用新的选定范围返回，或在未聚焦时返回null。它将被传递给选择范围，更改的来源，并最终传递给编辑器访问器的只读代理getBounds()。
+    console.warn('onChangeSelection')
+  }
+  onFocus(range, source, editor){
+    // 当编辑器聚焦时调用。它将收到新的选择范围。
+    console.warn('onFocus')
+  }
+  onBlur(previousRange, source, editor){
+    // 当编辑失去焦点时调用。它会在失去焦点之前收到它所选择的选择范围。
+    console.warn('onBlur')
+  }
   render() {
     return (
       <div>
@@ -290,6 +328,9 @@ class MyComponent extends Component {
           ref={(el) => { this.reactQuillRef = el }}
           value={this.state.text}
           onChange={this.handleChange}
+          onChangeSelection={this.onChangeSelection}
+          onFocus={this.onFocus}
+          onBlur={this.onBlur}
         // clipboard={
         //   { matchVisual: false }
         // }
@@ -298,10 +339,12 @@ class MyComponent extends Component {
         <button onMouseDown={() => this.insertText()}>insertText</button>
         <button onClick={() => this.insertVideo()}>insertVideo</button>
         <button onClick={() => this.insertHidden()}>insertHidden</button>
+        <button onMouseDown={(e) => { e.preventDefault(), this.insertHr() }}>insertHr</button>
         <button onMouseDown={(e) => { e.preventDefault(), this.insertLink() }}>insertLink</button>
         <button onMouseDown={(e) => { e.preventDefault(), this.insertImg() }}>insertImg</button>
         <button onMouseDown={(e) => { e.preventDefault(), this.setConent() }}>setConent</button>
         <button onMouseDown={(e) => { e.preventDefault(), this.insertList() }}>insertList</button>
+        <button onMouseDown={(e) => { e.preventDefault(), this.insertScroll() }}>insertScroll</button>
         <pre>
           {this.tidyHtml(this.state.text)}
         </pre>
