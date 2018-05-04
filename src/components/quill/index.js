@@ -14,17 +14,22 @@ import Video from './formats/video'
 import Link from './formats/link'
 import Img from './formats/img'
 // import ScrollBlock from './formats/scroll'
+import Counter from './formats/counter'
 
 Quill.register(BoldBlot);
 Quill.register(ItalicBlot);
 Quill.register(StrikeBlot);
-Quill.register(Hidden);
-Quill.register(HiddenItem);
+Quill.register({
+  'formats/hidden': Hidden,
+  'formats/hiddenitem': HiddenItem
+},true)
+// Quill.register(HiddenItem);
 Quill.register(Hr);
 Quill.register(Quote);
 Quill.register(Video);
 Quill.register(Link);
 Quill.register(Img);
+Quill.register('modules/counter', Counter);
 
 // Quill.register(ScrollBlock);
 
@@ -36,6 +41,7 @@ var toolbarOptions = [
   ['clean']                                         // remove formatting button
 ];
 var bindings = {
+  // 删除空的
   list: {
     key: 'backspace',
     format: ['hidden-diy'],
@@ -48,6 +54,7 @@ var bindings = {
       }
     }
   },
+  // 回车时 发现当前段落是空的 去掉样式
   'hidden empty enter': {
     key: 'enter',
     collapsed: true,
@@ -57,25 +64,25 @@ var bindings = {
       this.quill.format('hidden-diy', false, Quill.sources.USER);
     }
   },
-  'hidden enter': {
-    key: 'enter',
-    collapsed: true,
-    format: ['hidden-diy'],
-    handler: function (range) {
-      let [line, offset] = this.quill.getLine(range.index);
-      let formats = extend({}, line.formats(), { 'hidden-diy':true });
-      console.log(formats)
-      let delta = new Delta().retain(range.index)
-        .insert('\n', formats)
-        .retain(line.length() - offset - 1)
-        .retain(1, { 'hidden-diy': true});
-      console.log(delta)
-      this.quill.updateContents(delta, Quill.sources.USER);
-      this.quill.setSelection(range.index + 1, Quill.sources.SILENT);
-      this.quill.scrollIntoView();
-      console.log(this.quill)
-    }
-  },
+  // 'hidden enter': {
+  //   key: 'enter',
+  //   collapsed: true,
+  //   format: ['hidden-diy'],
+  //   handler: function (range) {
+  //     let [line, offset] = this.quill.getLine(range.index);
+  //     let formats = extend({}, line.formats(), { 'hidden-diy':true });
+  //     console.log(formats)
+  //     let delta = new Delta().retain(range.index)
+  //       .insert('\n', formats)
+  //       .retain(line.length() - offset - 1)
+  //       .retain(1, { 'hidden-diy': true});
+  //     console.log(delta)
+  //     this.quill.updateContents(delta, Quill.sources.USER);
+  //     this.quill.setSelection(range.index + 1, Quill.sources.SILENT);
+  //     this.quill.scrollIntoView();
+  //     console.log(this.quill)
+  //   }
+  // },
 };
 
 // quill.keyboard.addBinding({ key: Keyboard.keys.ENTER }, {
@@ -288,8 +295,8 @@ class MyComponent extends Component {
     // editor 文本框对象，可以调用函数获取content, delta值
     // console.log(arguments)
     // console.log(delta)
-    console.log(editor.getContents())
-    console.log(JSON.stringify(editor.getContents()))
+    // console.log(editor.getContents())
+    // console.log(JSON.stringify(editor.getContents()))
     
     this.setState({ text: content })
     // console.log(this)
@@ -317,10 +324,14 @@ class MyComponent extends Component {
       <div>
         <ReactQuill
           modules={
-            { 
+            {
               'toolbar': toolbarOptions,
               'keyboard': {
                 bindings: bindings
+              },
+              counter: {
+                container: '#counter',
+                unit: 'word'
               }
             }
           }
